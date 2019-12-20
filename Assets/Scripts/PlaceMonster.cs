@@ -26,13 +26,15 @@ public class PlaceMonster : MonoBehaviour {
 			gameManager.Gold -= monster.GetComponent<MonsterData>().CurrentLevel.cost;
 		}
 		else if(CanUpgradeMonster()){
-
+			if(gameManager.Gold >  monster.GetComponent<MonsterData>().CurrentLevel.cost){
 			monster.GetComponent<MonsterData>().IncreaseLevel();
 			AudioSource audioSource = gameObject.GetComponent<AudioSource>();
 			audioSource.PlayOneShot(audioSource.clip);
 			
-			gameManager.Gold -= monster.GetComponent<MonsterData>().CurrentLevel.cost;
-
+			gameManager.Gold -= monster.GetComponent<MonsterData>().CurrentLevel.cost;}
+			else{
+				Debug.Log("OK");
+			}
 			
 		}
 	}
