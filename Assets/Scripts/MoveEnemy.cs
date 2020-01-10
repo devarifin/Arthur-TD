@@ -16,32 +16,60 @@ public class MoveEnemy : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		// 1 
 		Vector3 startPosition = waypoints [currentWaypoint].transform.position;
 		Vector3 endPosition = waypoints [currentWaypoint + 1].transform.position;
-		// 2 
+		 
 		float pathLength = Vector3.Distance (startPosition, endPosition);
 		float totalTimeForPath = pathLength / speed;
 		float currentTimeOnPath = Time.time - lastWaypointSwitchTime;
 		gameObject.transform.position = Vector2.Lerp (startPosition, endPosition, currentTimeOnPath / totalTimeForPath);
-		// 3 
-		if (gameObject.transform.position.Equals(endPosition)) 
-		{
-		if (currentWaypoint < waypoints.Length - 2)
-		{
+		
+		if (gameObject.transform.position.Equals(endPosition)) {
+			if (currentWaypoint < waypoints.Length - 2){
+				currentWaypoint++;
+				lastWaypointSwitchTime = Time.time;
+				
+				RotateIntoMoveDirection();
+			}
+			else{
+				Destroy(gameObject);
 			
-			currentWaypoint++;
-			lastWaypointSwitchTime = Time.time;
-			// TODO: Rotate into move direction
+				AudioSource audioSource = gameObject.GetComponent<AudioSource>();
+				AudioSource.PlayClipAtPoint(audioSource.clip, transform.position);
+				
+				GameManagerBehavior gameManager = GameObject.Find("GameManager").GetComponent<GameManagerBehavior>();
+				gameManager.Health -= 1;
+				PlayerPrefs.SetInt("MaxHealth", gameManager.Health);
+			}
 		}
-		else
-		{
-			
-			Destroy(gameObject);
 
-			
-  }
-}
+	}
 
+
+	private void RotateIntoMoveDirection(){
+		Vector3 newStartPosition = waypoints [currentWaypoint].transform.position;
+		Vector3 newEndPosition = waypoints [currentWaypoint + 1].transform.position;
+		
+		float Sx = newStartPosition.x;
+		float Ex = newEndPosition.x;
+
+		GameObject sprite = gameObject.transform.Find("sprite").gameObject;
+		if(Sx<Ex){
+			sprite.transform.Rotate(new Vector3(0,0,0));
+		}
+		if(Sx>Ex){
+			sprite.transform.Rotate(new Vector3(0,180,0));
+		}
+	}
+
+	public float DistanceToGoal(){
+		float distance = 0;
+		distance += Vector2.Distance(gameObject.transform.position, waypoints[currentWaypoint + 1].transform.position);
+		for(int i = currentWaypoint + 1; i < waypoints.Length - 1; i++){
+			Vector3 startPosition = waypoints[i].transform.position;
+			Vector3 endPosition = waypoints[i+1].transform.position;
+			distance += Vector2.Distance(startPosition, endPosition);
+		}
+		return distance;
 	}
 }
